@@ -1,54 +1,78 @@
 import Glogo from "@/app/components/icons/GLogo";
+import LocationIcon from "./icons/LocationIcon";
+import ShareIcon from "./icons/ShareIcon";
+import BuildingIcon from "./icons/BuildingIcon";
+import TwitterIcon from "./icons/TwitterIcon";
+import { User } from "../interfaces/user";
+import Image from "next/image";
 
-const UserCardInfo = () => {
+interface Props {
+  user: User | null
+}
+function validateUrl (url:string) {
+  if(!/^https:\/\//i.test(url)) {
+    url = "https://" + url
+  }
+  return url
+}
+
+const UserCardInfo = ({user}: Props) => {
   return (
     <article className="grid-areas rounded-xl bg-blue-900 text-white p-2">
-      <div className="grid section-logo rounded-full bg-gray-200 h-24 w-24 place-content-center p-1">
-        <Glogo className="relative top-2 h-full w-full" />
+      <div className="grid section-logo rounded-full bg-gray-200 h-24 w-24 place-content-center p-1 mr-3 lg:mx-auto">
+        {/* <Glogo className="relative top-2 h-full w-full" /> */}
+        <Image
+          src={user?.avatar_url!}
+          width={96}
+          height={96}
+          alt={`profile image user ${user?.name}`}
+          className="rounded-full"
+        />
       </div>
 
       <div className="section-title">
-        <h2>The Octopus</h2>
-        <p className="text-blue-500">@theoctopus</p>
+        <h2 className="font-bold text-3xl">{user?.name}</h2>
+        <p className="text-blue-500 ">@{user?.login}</p>
       </div>
-      <p className="section-date">Joined 25 Jan 2011</p>
-      <p className="section-description">
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam, quod at
-        quos nisi iusto, dolorum necessitatibus repudiandae qui sunt assumenda
-        ipsum magni debitis ea eius beatae. Delectus voluptate temporibus
-        corrupti.
+      <p className="section-date lg:text-right">{new Date(user?.created_at || '').toLocaleString('es',{
+        year:'numeric',
+        month: 'long',
+        day:'numeric'
+      })}</p>
+      <p className="section-description mt-8 px-2 leading-loose">
+       {user?.bio}
       </p>
 
-      <div className="section-number flex justify-around bg-blue-950 rounded-lg p-2 mb-4 mt-4">
+      <div className="section-number flex justify-around bg-blue-950 rounded-lg p-8  mt-4 text-center">
         <article>
           <p>Repos</p>
-          <p>8</p>
+          <p className="font-bold text-xl">{user?.public_repos}</p>
         </article>
         <article>
           <p>Followers</p>
-          <p>3938</p>
+          <p className="font-bold text-xl">{user?.followers}</p>
         </article>
         <article>
           <p>Following</p>
-          <p>9</p>
+          <p className="font-bold text-xl">{user?.following}</p>
         </article>
       </div>
-      <div className="section-social md:grid md:grid-cols-2">
-        <article>
-          <i></i>
-          <p>San Francisco</p>
+      <div className="section-social md:grid md:grid-cols-2 mt-4 space-y-3">
+        <article className="flex space-x-2">
+          <i><LocationIcon className="h-full w-full" width={"1.2rem"}/></i>
+          <p>{user?.location || 'no location'}</p>
         </article>
-        <article>
-          <i></i>
-          <p>San Francisco</p>
+        <article className="flex space-x-2">
+          <i><ShareIcon className="h-full w-full" width={"1.2rem"}/></i>
+          <a className="truncate" href={validateUrl(user?.blog!)}>{user?.blog || 'no blog'}</a>
         </article>
-        <article>
-          <i></i>
-          <p>San Francisco</p>
+        <article className="flex space-x-2">
+          <i><TwitterIcon className="h-full w-full" width={"1.2rem"}/></i>
+          <p>{user?.twitter_username || 'not aviable'} </p>
         </article>
-        <article>
-          <i></i>
-          <p>San Francisco</p>
+        <article className="flex space-x-2">
+          <i><BuildingIcon className="h-full w-full" width={"1.2rem"}/></i>
+          <p>{user?.company || 'no company'}</p>
         </article>
       </div>
     </article>
