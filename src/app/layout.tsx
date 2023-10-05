@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={space_grotesk.className}>
         <div className='min-h-screen grid place-content-center bg-blue-950'>
-          <div className='sm:w-[500px] md:w-[60px] lg:w-[700px]'>
+          <div className=' sm:w-[500px] md:w-[60px] lg:w-[700px]'>
             <NavBar/>
             {children}
           </div>

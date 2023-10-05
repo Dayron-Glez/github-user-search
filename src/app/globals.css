@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.grid-areas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas: 
+        "a b b"
+        "a c c"
+        "d d d"
+        "e e e"
+        "f f f";
+}
+
+.section-logo {
+ grid-area: a;
+}
+.section-title {
+ grid-area: b;
+}
+.section-date {
+ grid-area: c;
+}
+.section-description {
+ grid-area: d;
+}
+.section-number {
+ grid-area: e;
+}
+.section-social {
+ grid-area: f;
+}
+
+
+
+@media (width >= 1024px) {
+  .grid-areas {
+    grid-template-areas: 
+        "a b c c"
+        "a d d d"
+        "a e e e"
+        "a f f f"
+    ;
+  }
+}
+
