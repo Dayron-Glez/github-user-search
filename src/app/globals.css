@@ -1,46 +1,192 @@
 @import "tailwindcss";
 
+/* ==============================
+   THEME: Design Tokens (Tailwind v4)
+   Generates utilities like bg-accent, text-text-primary, etc.
+   ============================== */
 
-.grid-areas {
-    display: grid;
-    grid-template-columns: 1fr 2fr 2fr;
-    grid-template-areas: 
-        "a b b"
-        "a c c"
-        "d d d"
-        "e e e"
-        "f f f";
-}
-
-.section-logo {
- grid-area: a;
-}
-.section-title {
- grid-area: b;
-}
-.section-date {
- grid-area: c;
-}
-.section-description {
- grid-area: d;
-}
-.section-number {
- grid-area: e;
-}
-.section-social {
- grid-area: f;
+@theme {
+  --color-bg-primary: #0d0f17;
+  --color-bg-secondary: #161929;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-border-glass: rgba(255, 255, 255, 0.1);
+  --color-border-glass-hover: rgba(255, 255, 255, 0.18);
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #a78bfa;
+  --color-accent-secondary: #06b6d4;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-stats-bg: rgba(139, 92, 246, 0.08);
+  --color-orb-1: rgba(139, 92, 246, 0.15);
+  --color-orb-2: rgba(6, 182, 212, 0.10);
 }
 
+/* ==============================
+   LIGHT THEME OVERRIDES
+   ============================== */
 
+:root:not(.dark) {
+  --color-bg-primary: #f0f0f5;
+  --color-bg-secondary: #e8e8f0;
+  --color-surface: rgba(255, 255, 255, 0.6);
+  --color-surface-hover: rgba(255, 255, 255, 0.75);
+  --color-border-glass: rgba(0, 0, 0, 0.08);
+  --color-border-glass-hover: rgba(0, 0, 0, 0.14);
+  --color-accent: #7c3aed;
+  --color-accent-hover: #6d28d9;
+  --color-accent-secondary: #0891b2;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-stats-bg: rgba(139, 92, 246, 0.06);
+  --color-orb-1: rgba(139, 92, 246, 0.08);
+  --color-orb-2: rgba(6, 182, 212, 0.06);
+}
 
-@media (width >= 1024px) {
-  .grid-areas {
-    grid-template-areas: 
-        "a b c c"
-        "a d d d"
-        "a e e e"
-        "a f f f"
-    ;
+/* ==============================
+   GLASS CARD
+   ============================== */
+
+.glass-card {
+  background: var(--color-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-glass);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--color-border-glass-hover);
+}
+
+/* ==============================
+   BACKGROUND DECORATIVE ORBS
+   ============================== */
+
+.bg-orbs {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-orbs::before,
+.bg-orbs::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-orbs::before {
+  width: 500px;
+  height: 500px;
+  background: var(--color-orb-1);
+  top: -10%;
+  right: -5%;
+}
+
+.bg-orbs::after {
+  width: 400px;
+  height: 400px;
+  background: var(--color-orb-2);
+  bottom: -5%;
+  left: -10%;
+}
+
+/* ==============================
+   ANIMATIONS
+   ============================== */
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
+.animate-card-enter {
+  animation: card-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==============================
+   BUTTON GLOW
+   ============================== */
+
+.btn-glow {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+}
+
+.btn-glow:active {
+  transform: scale(0.97);
+}
+
+/* ==============================
+   HOVER SURFACE (for social links)
+   ============================== */
+
+.hover-surface {
+  transition: background-color 0.2s ease;
+}
+
+.hover-surface:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* ==============================
+   THEME TRANSITION
+   ============================== */
+
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ==============================
+   USER CARD GRID LAYOUT
+   ============================== */
+
+.grid-areas {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 0.5rem 1.25rem;
+  align-items: start;
+  grid-template-areas:
+    "a b b"
+    "a c c"
+    "d d d"
+    "e e e"
+    "f f f";
+}
+
+.section-logo { grid-area: a; }
+.section-title { grid-area: b; }
+.section-date { grid-area: c; }
+.section-description { grid-area: d; }
+.section-number { grid-area: e; }
+.section-social { grid-area: f; }
+
+@media (width >= 1024px) {
+  .grid-areas {
+    grid-template-columns: auto 1fr 1fr 1fr;
+    grid-template-areas:
+      "a b c c"
+      "a d d d"
+      "a e e e"
+      "a f f f";
+  }
+}
