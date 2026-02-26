@@ -36,21 +36,35 @@ const NavBar = () => {
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  if (!hasMounted) {
-    return <>Loading...</>
-  }
+  if (!hasMounted) return null
 
   const handleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light')
 
   return (
-    <header className="flex items-center space-x-2 mb-10 text-white">
-        <h1 className="flex-grow text-3xl font-bold dark:text-white text-black">devfinder</h1>
-        <span className="uppercase dark:text-white text-black">{theme}</span>
-        <button onClick={handleTheme}>
+    <header className="flex items-center justify-between mb-8">
+      <h1
+        className="text-2xl font-bold tracking-tight"
+        style={{ color: 'var(--color-text-primary)' }}
+      >
+        dev<span style={{ color: 'var(--color-accent)' }}>/</span>finder
+      </h1>
+
+      <button
+        onClick={handleTheme}
+        className="group relative flex items-center justify-center w-10 h-10 rounded-full cursor-pointer transition-all duration-300"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border-glass)',
+        }}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      >
+        <div className="transition-transform duration-500 group-hover:rotate-45">
           {theme === 'light'
-          ? <MoonIcon fill="white" width={20} height={20} className="dark:fill-white fill-blue-500"/>
-          : <SunnyIcon fill="white" width={20} height={20} className="dark:fill-white fill-blue-500"/>}
-        </button>
+            ? <MoonIcon width={18} height={18} style={{ fill: 'var(--color-text-secondary)' }} />
+            : <SunnyIcon width={18} height={18} style={{ fill: 'var(--color-text-secondary)' }} />
+          }
+        </div>
+      </button>
     </header>
   )
 }

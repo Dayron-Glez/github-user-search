@@ -2,27 +2,44 @@
 import SearchIcon from './icons/SearchIcon'
 
 interface Props {
-  getUser: (username:string) => Promise<void>
+  getUser: (username: string) => Promise<void>
 }
 
-const FormSearchUser = ({getUser}: Props) => {
+const FormSearchUser = ({ getUser }: Props) => {
 
-  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const username = e.currentTarget.username.value
-    if(!username) return;
+    if (!username) return
     await getUser(username)
   }
 
   return (
-    <form onSubmit={handleSubmit}
-    className="flex gap-2 items-center dark:bg-blue-900 bg-white shadow-md dark:shadow-none p-2 rounded-xl mb-6">
-    <span className="min-w-[20px]">
-      <SearchIcon className="fill-blue-500" />
-    </span>
-    <input name='username' type="text" placeholder="Search GitHub username" className="h-[56px] flex-1 py-2 rounded-lg bg-transparent dark:placeholder:text-white placeholder:text-black  dark:text-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-    <button className="bg-blue-500 rounded-lg py-4 px-4 font-bold text-white">Search</button>
-  </form>
+    <form
+      onSubmit={handleSubmit}
+      className="glass-card flex gap-3 items-center p-3 rounded-2xl mb-8 transition-all duration-300"
+    >
+      <span className="min-w-[20px] ml-2">
+        <SearchIcon style={{ fill: 'var(--color-accent)' }} />
+      </span>
+      <input
+        name="username"
+        type="text"
+        placeholder="Search GitHub username..."
+        className="h-[52px] flex-1 py-2 px-2 rounded-xl bg-transparent focus:outline-none text-base"
+        style={{
+          color: 'var(--color-text-primary)',
+        }}
+      />
+      <button
+        className="btn-glow rounded-xl py-3 px-6 font-bold text-white text-sm cursor-pointer transition-all duration-300"
+        style={{
+          background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))',
+        }}
+      >
+        Search
+      </button>
+    </form>
   )
 }
 
