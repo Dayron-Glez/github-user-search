@@ -56,11 +56,16 @@ const writeHistory = (entries: SearchEntry[]): void => {
   emitChange();
 };
 
-export const useSearchHistory = () => {
+export const useSearchHistory = (): {
+  history: SearchEntry[];
+  addEntry: (username: string, avatarUrl: string, name: string | null) => void;
+  removeEntry: (username: string) => void;
+  clearHistory: () => void;
+} => {
   const history = useSyncExternalStore(subscribe, getStableSnapshot, getServerSnapshot);
 
   const addEntry = useCallback(
-    (username: string, avatarUrl: string, name: string | null) => {
+    (username: string, avatarUrl: string, name: string | null): void => {
       const prev = getSnapshot();
       const filtered = prev.filter(
         (e) => e.username.toLowerCase() !== username.toLowerCase(),

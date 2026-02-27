@@ -9,12 +9,12 @@ interface Props {
   user: User | null;
 }
 
-function validateUrl(url: string) {
+const validateUrl = (url: string): string => {
   if (!/^https?:\/\//i.test(url)) {
     url = "https://" + url;
   }
   return url;
-}
+};
 
 const socialIconStyle = { fill: "var(--color-text-secondary)" };
 
