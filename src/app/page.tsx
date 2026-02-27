@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import FormSearchUser from "./components/FormSearchUser"
 import UserCardInfo from "./components/UserCardInfo"
 import UserCardSkeleton from "./components/UserCardSkeleton"
@@ -10,6 +10,7 @@ import RepoList from "./components/RepoList"
 import OrgList from "./components/OrgList"
 import ActivityOverview from "./components/ActivityOverview"
 import SearchHistory from "./components/SearchHistory"
+import ShareButton from "./components/ShareButton"
 import { useSearchHistory } from "./hooks/useSearchHistory"
 import { User } from '@/app/interfaces/user'
 import { Repo } from '@/app/interfaces/repo'
@@ -38,6 +39,7 @@ const Home = () => {
     resetAt: Date
   } | null>(null)
   const lastUsernameRef = useRef('')
+  const hasAutoSearched = useRef(false)
   const { history, addEntry, removeEntry, clearHistory } = useSearchHistory()
 
   const getUser = async (username: string) => {
@@ -60,6 +62,7 @@ const Home = () => {
       setUser(result.user)
       setError(null)
       addEntry(result.user.login, result.user.avatar_url, result.user.name)
+      window.history.replaceState(null, '', `?user=${encodeURIComponent(result.user.login)}`)
 
       const [allRepos, userOrgs] = await Promise.all([
         fetchAllUserRepos(username),
@@ -73,6 +76,17 @@ const Home = () => {
 
     setLoading(false)
   }
+
+  // Auto-search from ?user= query param
+  useEffect(() => {
+    if (hasAutoSearched.current) return
+    const params = new URLSearchParams(window.location.search)
+    const userParam = params.get('user')
+    if (userParam) {
+      hasAutoSearched.current = true
+      requestAnimationFrame(() => getUser(userParam))
+    }
+  })
 
   const handleRetry = () => {
     if (lastUsernameRef.current) {
@@ -106,6 +120,9 @@ const Home = () => {
       {!loading && user && (
         <div key={user.login} className="animate-card-enter">
           <UserCardInfo user={user} />
+          <div className="flex justify-end mt-4 mb-2 px-1">
+            <ShareButton username={user.login} />
+          </div>
           {stats && <ActivityOverview stats={stats} user={user} />}
           <RepoList repos={repos} />
           <OrgList orgs={orgs} />
