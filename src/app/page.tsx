@@ -1,20 +1,20 @@
-'use client'
-import { useState, useRef, useEffect } from "react"
-import FormSearchUser from "./components/FormSearchUser"
-import UserCardInfo from "./components/UserCardInfo"
-import UserCardSkeleton from "./components/UserCardSkeleton"
-import EmptyState from "./components/EmptyState"
-import ErrorCard from "./components/ErrorCard"
-import RateLimitIndicator from "./components/RateLimitIndicator"
-import RepoList from "./components/RepoList"
-import OrgList from "./components/OrgList"
-import ActivityOverview from "./components/ActivityOverview"
-import SearchHistory from "./components/SearchHistory"
-import ShareButton from "./components/ShareButton"
-import { useSearchHistory } from "./hooks/useSearchHistory"
-import { User } from '@/app/interfaces/user'
-import { Repo } from '@/app/interfaces/repo'
-import { Org } from '@/app/interfaces/org'
+"use client";
+import { useState, useRef, useEffect } from "react";
+import FormSearchUser from "./components/FormSearchUser";
+import UserCardInfo from "./components/UserCardInfo";
+import UserCardSkeleton from "./components/UserCardSkeleton";
+import EmptyState from "./components/EmptyState";
+import ErrorCard from "./components/ErrorCard";
+import RateLimitIndicator from "./components/RateLimitIndicator";
+import RepoList from "./components/RepoList";
+import OrgList from "./components/OrgList";
+import ActivityOverview from "./components/ActivityOverview";
+import SearchHistory from "./components/SearchHistory";
+import ShareButton from "./components/ShareButton";
+import { useSearchHistory } from "./hooks/useSearchHistory";
+import { User } from "@/app/interfaces/user";
+import { Repo } from "@/app/interfaces/repo";
+import { Org } from "@/app/interfaces/org";
 import {
   fetchGitHubUser,
   fetchAllUserRepos,
@@ -23,76 +23,80 @@ import {
   computeUserStats,
   GitHubError,
   UserStats,
-} from './lib/github'
+} from "./lib/github";
 
 const Home = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [repos, setRepos] = useState<Repo[]>([])
-  const [orgs, setOrgs] = useState<Org[]>([])
-  const [stats, setStats] = useState<UserStats | null>(null)
-  const [error, setError] = useState<GitHubError | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [hasSearched, setHasSearched] = useState(false)
+  const [user, setUser] = useState<User | null>(null);
+  const [repos, setRepos] = useState<Repo[]>([]);
+  const [orgs, setOrgs] = useState<Org[]>([]);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [error, setError] = useState<GitHubError | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [rateLimit, setRateLimit] = useState<{
-    limit: number
-    remaining: number
-    resetAt: Date
-  } | null>(null)
-  const lastUsernameRef = useRef('')
-  const hasAutoSearched = useRef(false)
-  const { history, addEntry, removeEntry, clearHistory } = useSearchHistory()
+    limit: number;
+    remaining: number;
+    resetAt: Date;
+  } | null>(null);
+  const lastUsernameRef = useRef<string | null>(null);
+  const hasAutoSearched = useRef<boolean>(false);
+  const { history, addEntry, removeEntry, clearHistory } = useSearchHistory();
 
   const getUser = async (username: string) => {
-    lastUsernameRef.current = username
-    setLoading(true)
-    setError(null)
-    setHasSearched(true)
+    lastUsernameRef.current = username;
+    setLoading(true);
+    setError(null);
+    setHasSearched(true);
 
-    const result = await fetchGitHubUser(username)
+    const result = await fetchGitHubUser(username);
 
-    setRateLimit(result.rateLimit)
+    setRateLimit(result.rateLimit);
 
     if (result.error) {
-      setUser(null)
-      setRepos([])
-      setOrgs([])
-      setStats(null)
-      setError(result.error)
+      setUser(null);
+      setRepos([]);
+      setOrgs([]);
+      setStats(null);
+      setError(result.error);
     } else if (result.user) {
-      setUser(result.user)
-      setError(null)
-      addEntry(result.user.login, result.user.avatar_url, result.user.name)
-      window.history.replaceState(null, '', `?user=${encodeURIComponent(result.user.login)}`)
+      setUser(result.user);
+      setError(null);
+      addEntry(result.user.login, result.user.avatar_url, result.user.name);
+      window.history.replaceState(
+        null,
+        "",
+        `?user=${encodeURIComponent(result.user.login)}`,
+      );
 
       const [allRepos, userOrgs] = await Promise.all([
         fetchAllUserRepos(username),
         fetchUserOrgs(username),
-      ])
+      ]);
 
-      setRepos(getTopRepos(allRepos))
-      setOrgs(userOrgs)
-      setStats(computeUserStats(allRepos))
+      setRepos(getTopRepos(allRepos));
+      setOrgs(userOrgs);
+      setStats(computeUserStats(allRepos));
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   // Auto-search from ?user= query param
   useEffect(() => {
-    if (hasAutoSearched.current) return
-    const params = new URLSearchParams(window.location.search)
-    const userParam = params.get('user')
+    if (hasAutoSearched.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const userParam = params.get("user");
     if (userParam) {
-      hasAutoSearched.current = true
-      requestAnimationFrame(() => getUser(userParam))
+      hasAutoSearched.current = true;
+      requestAnimationFrame(() => getUser(userParam));
     }
-  })
+  });
 
-  const handleRetry = () => {
+  const handleRetry = (): void => {
     if (lastUsernameRef.current) {
-      getUser(lastUsernameRef.current)
+      getUser(lastUsernameRef.current);
     }
-  }
+  };
 
   return (
     <>
@@ -129,13 +133,11 @@ const Home = () => {
         </div>
       )}
 
-      {!loading && error && (
-        <ErrorCard error={error} onRetry={handleRetry} />
-      )}
+      {!loading && error && <ErrorCard error={error} onRetry={handleRetry} />}
 
       {!loading && !user && !error && !hasSearched && <EmptyState />}
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

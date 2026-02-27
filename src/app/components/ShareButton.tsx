@@ -6,7 +6,7 @@ interface Props {
 }
 
 const ShareButton = ({ username }: Props) => {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   const handleShare = useCallback(async () => {
     const url = `${window.location.origin}?user=${encodeURIComponent(username)}`;
@@ -33,7 +33,9 @@ const ShareButton = ({ username }: Props) => {
       onClick={handleShare}
       className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105"
       style={{
-        backgroundColor: copied ? "rgba(34, 197, 94, 0.15)" : "var(--color-surface-hover)",
+        backgroundColor: copied
+          ? "rgba(34, 197, 94, 0.15)"
+          : "var(--color-surface-hover)",
         border: `1px solid ${copied ? "rgba(34, 197, 94, 0.3)" : "var(--color-glass-border)"}`,
         color: copied ? "#22c55e" : "var(--color-text-secondary)",
       }}
