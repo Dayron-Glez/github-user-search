@@ -86,19 +86,77 @@ export async function fetchGitHubUser(username: string): Promise<GitHubResponse>
   }
 }
 
-export async function fetchUserRepos(username: string): Promise<Repo[]> {
+export async function fetchAllUserRepos(username: string): Promise<Repo[]> {
   try {
     const res = await fetch(
-      `https://api.github.com/users/${username}/repos?per_page=30&sort=updated`
+      `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`
     )
     if (!res.ok) return []
-    const repos: Repo[] = await res.json()
-    return repos
-      .filter(repo => !repo.fork)
-      .sort((a, b) => b.stargazers_count - a.stargazers_count)
-      .slice(0, 6)
+    return await res.json()
   } catch {
     return []
+  }
+}
+
+export function getTopRepos(repos: Repo[], count = 6): Repo[] {
+  return repos
+    .filter(repo => !repo.fork)
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, count)
+}
+
+export interface LanguageStat {
+  language: string
+  count: number
+  percentage: number
+}
+
+export function computeLanguageStats(repos: Repo[]): LanguageStat[] {
+  const counts: Record<string, number> = {}
+  const ownRepos = repos.filter(r => !r.fork && r.language)
+
+  for (const repo of ownRepos) {
+    counts[repo.language!] = (counts[repo.language!] || 0) + 1
+  }
+
+  const total = ownRepos.length
+  if (total === 0) return []
+
+  return Object.entries(counts)
+    .map(([language, count]) => ({
+      language,
+      count,
+      percentage: Math.round((count / total) * 100),
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8)
+}
+
+export interface UserStats {
+  totalStars: number
+  totalForks: number
+  totalRepos: number
+  languages: LanguageStat[]
+  mostRecentPush: string | null
+}
+
+export function computeUserStats(repos: Repo[]): UserStats {
+  const ownRepos = repos.filter(r => !r.fork)
+
+  const totalStars = ownRepos.reduce((sum, r) => sum + r.stargazers_count, 0)
+  const totalForks = ownRepos.reduce((sum, r) => sum + r.forks_count, 0)
+
+  const sorted = [...ownRepos].sort(
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  )
+  const mostRecentPush = sorted.length > 0 ? sorted[0].updated_at : null
+
+  return {
+    totalStars,
+    totalForks,
+    totalRepos: ownRepos.length,
+    languages: computeLanguageStats(repos),
+    mostRecentPush,
   }
 }
 

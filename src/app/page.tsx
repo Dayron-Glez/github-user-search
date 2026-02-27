@@ -8,15 +8,25 @@ import ErrorCard from "./components/ErrorCard"
 import RateLimitIndicator from "./components/RateLimitIndicator"
 import RepoList from "./components/RepoList"
 import OrgList from "./components/OrgList"
+import ActivityOverview from "./components/ActivityOverview"
 import { User } from '@/app/interfaces/user'
 import { Repo } from '@/app/interfaces/repo'
 import { Org } from '@/app/interfaces/org'
-import { fetchGitHubUser, fetchUserRepos, fetchUserOrgs, GitHubError } from './lib/github'
+import {
+  fetchGitHubUser,
+  fetchAllUserRepos,
+  getTopRepos,
+  fetchUserOrgs,
+  computeUserStats,
+  GitHubError,
+  UserStats,
+} from './lib/github'
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null)
   const [repos, setRepos] = useState<Repo[]>([])
   const [orgs, setOrgs] = useState<Org[]>([])
+  const [stats, setStats] = useState<UserStats | null>(null)
   const [error, setError] = useState<GitHubError | null>(null)
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -41,17 +51,20 @@ const Home = () => {
       setUser(null)
       setRepos([])
       setOrgs([])
+      setStats(null)
       setError(result.error)
     } else if (result.user) {
       setUser(result.user)
       setError(null)
 
-      const [userRepos, userOrgs] = await Promise.all([
-        fetchUserRepos(username),
+      const [allRepos, userOrgs] = await Promise.all([
+        fetchAllUserRepos(username),
         fetchUserOrgs(username),
       ])
-      setRepos(userRepos)
+
+      setRepos(getTopRepos(allRepos))
       setOrgs(userOrgs)
+      setStats(computeUserStats(allRepos))
     }
 
     setLoading(false)
@@ -80,6 +93,7 @@ const Home = () => {
       {!loading && user && (
         <div key={user.login} className="animate-card-enter">
           <UserCardInfo user={user} />
+          {stats && <ActivityOverview stats={stats} user={user} />}
           <RepoList repos={repos} />
           <OrgList orgs={orgs} />
         </div>
