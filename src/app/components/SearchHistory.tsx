@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { SearchEntry } from "../hooks/useSearchHistory";
+import { ReactNode } from "react";
 
 interface Props {
   history: SearchEntry[];
@@ -21,7 +22,12 @@ const timeAgo = (timestamp: number): string => {
   return `${Math.floor(days / 30)}mo ago`;
 };
 
-const SearchHistory = ({ history, onSelect, onRemove, onClear }: Props) => {
+const SearchHistory = ({
+  history,
+  onSelect,
+  onRemove,
+  onClear,
+}: Props): ReactNode | null => {
   if (history.length === 0) return null;
 
   return (
