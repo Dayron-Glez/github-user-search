@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export interface SearchEntry {
   username: string;
@@ -11,57 +11,83 @@ export interface SearchEntry {
 const STORAGE_KEY = "devfinder_search_history";
 const MAX_ENTRIES = 10;
 
-function readHistory(): SearchEntry[] {
-  if (typeof window === "undefined") return [];
+let listeners: Array<() => void> = [];
+
+const emitChange = (): void => {
+  listeners.forEach((l) => l());
+};
+
+const subscribe = (listener: () => void): (() => void) => {
+  listeners = [...listeners, listener];
+  return () => {
+    listeners = listeners.filter((l) => l !== listener);
+  };
+};
+
+const getSnapshot = (): SearchEntry[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
-}
-
-const writeHistory = (entries: SearchEntry[]): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 };
 
-export function useSearchHistory() {
-  const [history, setHistory] = useState<SearchEntry[]>(readHistory);
+const EMPTY: SearchEntry[] = [];
+const getServerSnapshot = (): SearchEntry[] => EMPTY;
+
+let cachedSnapshot: SearchEntry[] = [];
+let cachedRaw: string | null = null;
+
+const getStableSnapshot = (): SearchEntry[] => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    cachedSnapshot = raw ? JSON.parse(raw) : [];
+  }
+  return cachedSnapshot;
+};
+
+const writeHistory = (entries: SearchEntry[]): void => {
+  const json = JSON.stringify(entries);
+  localStorage.setItem(STORAGE_KEY, json);
+  cachedRaw = json;
+  cachedSnapshot = entries;
+  emitChange();
+};
+
+export const useSearchHistory = () => {
+  const history = useSyncExternalStore(subscribe, getStableSnapshot, getServerSnapshot);
 
   const addEntry = useCallback(
     (username: string, avatarUrl: string, name: string | null) => {
-      setHistory((prev) => {
-        const filtered = prev.filter(
-          (e) => e.username.toLowerCase() !== username.toLowerCase(),
-        );
-        const newEntry: SearchEntry = {
-          username,
-          avatarUrl,
-          name,
-          searchedAt: Date.now(),
-        };
-        const updated = [newEntry, ...filtered].slice(0, MAX_ENTRIES);
-        writeHistory(updated);
-        return updated;
-      });
+      const prev = getSnapshot();
+      const filtered = prev.filter(
+        (e) => e.username.toLowerCase() !== username.toLowerCase(),
+      );
+      const newEntry: SearchEntry = {
+        username,
+        avatarUrl,
+        name,
+        searchedAt: Date.now(),
+      };
+      const updated = [newEntry, ...filtered].slice(0, MAX_ENTRIES);
+      writeHistory(updated);
     },
     [],
   );
 
   const removeEntry = useCallback((username: string): void => {
-    setHistory((prev) => {
-      const updated = prev.filter(
-        (e) => e.username.toLowerCase() !== username.toLowerCase(),
-      );
-      writeHistory(updated);
-      return updated;
-    });
+    const prev = getSnapshot();
+    const updated = prev.filter(
+      (e) => e.username.toLowerCase() !== username.toLowerCase(),
+    );
+    writeHistory(updated);
   }, []);
 
   const clearHistory = useCallback((): void => {
     writeHistory([]);
-    setHistory([]);
   }, []);
 
   return { history, addEntry, removeEntry, clearHistory };
-}
+};
