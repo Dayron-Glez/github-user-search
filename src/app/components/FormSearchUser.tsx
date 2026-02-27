@@ -1,4 +1,5 @@
 "use client";
+import { SyntheticEvent } from "react";
 import SearchIcon from "./icons/SearchIcon";
 
 interface Props {
@@ -6,7 +7,9 @@ interface Props {
 }
 
 const FormSearchUser = ({ getUser }: Props) => {
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: SyntheticEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     const username = e.currentTarget.username.value;
     if (!username) return;

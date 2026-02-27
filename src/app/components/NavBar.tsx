@@ -4,9 +4,9 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import SunnyIcon from "./icons/SunnyIcon";
 import MoonIcon from "./icons/MoonIcon";
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = (): () => void => () => {};
 
-const useHasMounted = () => {
+const useHasMounted = (): boolean => {
   return useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -40,7 +40,7 @@ const NavBar = () => {
 
   if (!hasMounted) return null;
 
-  const handleTheme = () =>
+  const handleTheme = (): void =>
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
 
   return (

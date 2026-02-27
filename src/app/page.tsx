@@ -42,7 +42,7 @@ const Home = () => {
   const hasAutoSearched = useRef<boolean>(false);
   const { history, addEntry, removeEntry, clearHistory } = useSearchHistory();
 
-  const getUser = async (username: string) => {
+  const getUser = async (username: string): Promise<void> => {
     lastUsernameRef.current = username;
     setLoading(true);
     setError(null);

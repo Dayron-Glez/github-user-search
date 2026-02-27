@@ -8,7 +8,7 @@ interface Props {
 const ShareButton = ({ username }: Props) => {
   const [copied, setCopied] = useState<boolean>(false);
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(async (): Promise<void> => {
     const url = `${window.location.origin}?user=${encodeURIComponent(username)}`;
 
     try {
