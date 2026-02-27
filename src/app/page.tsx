@@ -9,6 +9,8 @@ import RateLimitIndicator from "./components/RateLimitIndicator"
 import RepoList from "./components/RepoList"
 import OrgList from "./components/OrgList"
 import ActivityOverview from "./components/ActivityOverview"
+import SearchHistory from "./components/SearchHistory"
+import { useSearchHistory } from "./hooks/useSearchHistory"
 import { User } from '@/app/interfaces/user'
 import { Repo } from '@/app/interfaces/repo'
 import { Org } from '@/app/interfaces/org'
@@ -36,6 +38,7 @@ const Home = () => {
     resetAt: Date
   } | null>(null)
   const lastUsernameRef = useRef('')
+  const { history, addEntry, removeEntry, clearHistory } = useSearchHistory()
 
   const getUser = async (username: string) => {
     lastUsernameRef.current = username
@@ -56,6 +59,7 @@ const Home = () => {
     } else if (result.user) {
       setUser(result.user)
       setError(null)
+      addEntry(result.user.login, result.user.avatar_url, result.user.name)
 
       const [allRepos, userOrgs] = await Promise.all([
         fetchAllUserRepos(username),
@@ -79,6 +83,15 @@ const Home = () => {
   return (
     <>
       <FormSearchUser getUser={getUser} />
+
+      {!loading && !user && (
+        <SearchHistory
+          history={history}
+          onSelect={getUser}
+          onRemove={removeEntry}
+          onClear={clearHistory}
+        />
+      )}
 
       {rateLimit && hasSearched && (
         <RateLimitIndicator
