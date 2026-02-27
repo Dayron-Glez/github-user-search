@@ -62,11 +62,6 @@ const Home = () => {
       setUser(result.user);
       setError(null);
       addEntry(result.user.login, result.user.avatar_url, result.user.name);
-      window.history.replaceState(
-        null,
-        "",
-        `?user=${encodeURIComponent(result.user.login)}`,
-      );
 
       const [allRepos, userOrgs] = await Promise.all([
         fetchAllUserRepos(username),
