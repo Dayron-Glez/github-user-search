@@ -1,11 +1,9 @@
 const UserCardSkeleton = () => {
   return (
-    <article
-      className="glass-card grid-areas rounded-2xl p-6 sm:p-8 animate-card-enter"
-    >
+    <article className="glass-card grid-areas rounded-2xl p-6 sm:p-8 animate-card-enter">
       {/* Avatar skeleton */}
       <div className="section-logo flex items-start justify-center">
-        <div className="skeleton-shimmer w-[120px] h-[120px] rounded-full" />
+        <div className="skeleton-shimmer w-30 h-30 rounded-full" />
       </div>
 
       {/* Name + Handle skeleton */}
@@ -29,9 +27,9 @@ const UserCardSkeleton = () => {
       {/* Stats skeleton */}
       <div
         className="section-number flex justify-around gap-4 mt-6 rounded-2xl p-6"
-        style={{ backgroundColor: 'var(--color-stats-bg)' }}
+        style={{ backgroundColor: "var(--color-stats-bg)" }}
       >
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <div key={i} className="flex flex-col items-center gap-2">
             <div className="skeleton-shimmer h-3 w-14 rounded-md" />
             <div className="skeleton-shimmer h-7 w-10 rounded-md" />
@@ -41,15 +39,15 @@ const UserCardSkeleton = () => {
 
       {/* Social links skeleton */}
       <div className="section-social grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-3 py-2 px-3">
-            <div className="skeleton-shimmer w-5 h-5 rounded-full flex-shrink-0" />
+            <div className="skeleton-shimmer w-5 h-5 rounded-full shrink-0" />
             <div className="skeleton-shimmer h-4 w-28 rounded-md" />
           </div>
         ))}
       </div>
     </article>
-  )
-}
+  );
+};
 
-export default UserCardSkeleton
+export default UserCardSkeleton;

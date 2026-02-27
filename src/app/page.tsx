@@ -1,45 +1,64 @@
 'use client'
-import { useState } from "react"
+import { useState, useRef } from "react"
 import FormSearchUser from "./components/FormSearchUser"
 import UserCardInfo from "./components/UserCardInfo"
 import UserCardSkeleton from "./components/UserCardSkeleton"
 import EmptyState from "./components/EmptyState"
+import ErrorCard from "./components/ErrorCard"
+import RateLimitIndicator from "./components/RateLimitIndicator"
 import { User } from '@/app/interfaces/user'
+import { fetchGitHubUser, GitHubError } from './lib/github'
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<GitHubError | null>(null)
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [rateLimit, setRateLimit] = useState<{
+    limit: number
+    remaining: number
+    resetAt: Date
+  } | null>(null)
+  const lastUsernameRef = useRef('')
 
   const getUser = async (username: string) => {
+    lastUsernameRef.current = username
     setLoading(true)
     setError(null)
     setHasSearched(true)
 
-    try {
-      const res = await fetch(`https://api.github.com/users/${username}`)
-      const data = await res.json()
+    const result = await fetchGitHubUser(username)
 
-      if (!res.ok) {
-        setUser(null)
-        setError("User not found")
-        return
-      }
+    setRateLimit(result.rateLimit)
 
-      setUser(data)
-      setError(null)
-    } catch {
+    if (result.error) {
       setUser(null)
-      setError("Something went wrong. Please try again.")
-    } finally {
-      setLoading(false)
+      setError(result.error)
+    } else if (result.user) {
+      setUser(result.user)
+      setError(null)
+    }
+
+    setLoading(false)
+  }
+
+  const handleRetry = () => {
+    if (lastUsernameRef.current) {
+      getUser(lastUsernameRef.current)
     }
   }
 
   return (
     <>
       <FormSearchUser getUser={getUser} />
+
+      {rateLimit && hasSearched && (
+        <RateLimitIndicator
+          remaining={rateLimit.remaining}
+          limit={rateLimit.limit}
+          resetAt={rateLimit.resetAt}
+        />
+      )}
 
       {loading && <UserCardSkeleton />}
 
@@ -50,17 +69,7 @@ const Home = () => {
       )}
 
       {!loading && error && (
-        <div
-          className="animate-card-enter glass-card rounded-2xl p-6 text-center"
-          style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}
-        >
-          <p
-            className="font-semibold text-lg"
-            style={{ color: '#f87171' }}
-          >
-            {error}
-          </p>
-        </div>
+        <ErrorCard error={error} onRetry={handleRetry} />
       )}
 
       {!loading && !user && !error && !hasSearched && <EmptyState />}
