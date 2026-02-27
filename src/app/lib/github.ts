@@ -1,5 +1,6 @@
 import { User } from '../interfaces/user'
 import { Repo } from '../interfaces/repo'
+import { Org } from '../interfaces/org'
 
 export type ErrorType = 'not_found' | 'rate_limit' | 'server_error' | 'network_error'
 
@@ -96,6 +97,18 @@ export async function fetchUserRepos(username: string): Promise<Repo[]> {
       .filter(repo => !repo.fork)
       .sort((a, b) => b.stargazers_count - a.stargazers_count)
       .slice(0, 6)
+  } catch {
+    return []
+  }
+}
+
+export async function fetchUserOrgs(username: string): Promise<Org[]> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/users/${username}/orgs`
+    )
+    if (!res.ok) return []
+    return await res.json()
   } catch {
     return []
   }
