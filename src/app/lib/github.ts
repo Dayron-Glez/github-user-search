@@ -1,4 +1,5 @@
 import { User } from '../interfaces/user'
+import { Repo } from '../interfaces/repo'
 
 export type ErrorType = 'not_found' | 'rate_limit' | 'server_error' | 'network_error'
 
@@ -81,5 +82,21 @@ export async function fetchGitHubUser(username: string): Promise<GitHubResponse>
         resetAt: new Date(),
       },
     }
+  }
+}
+
+export async function fetchUserRepos(username: string): Promise<Repo[]> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=30&sort=updated`
+    )
+    if (!res.ok) return []
+    const repos: Repo[] = await res.json()
+    return repos
+      .filter(repo => !repo.fork)
+      .sort((a, b) => b.stargazers_count - a.stargazers_count)
+      .slice(0, 6)
+  } catch {
+    return []
   }
 }

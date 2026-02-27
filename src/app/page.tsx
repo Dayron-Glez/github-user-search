@@ -6,11 +6,14 @@ import UserCardSkeleton from "./components/UserCardSkeleton"
 import EmptyState from "./components/EmptyState"
 import ErrorCard from "./components/ErrorCard"
 import RateLimitIndicator from "./components/RateLimitIndicator"
+import RepoList from "./components/RepoList"
 import { User } from '@/app/interfaces/user'
-import { fetchGitHubUser, GitHubError } from './lib/github'
+import { Repo } from '@/app/interfaces/repo'
+import { fetchGitHubUser, fetchUserRepos, GitHubError } from './lib/github'
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null)
+  const [repos, setRepos] = useState<Repo[]>([])
   const [error, setError] = useState<GitHubError | null>(null)
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -33,10 +36,14 @@ const Home = () => {
 
     if (result.error) {
       setUser(null)
+      setRepos([])
       setError(result.error)
     } else if (result.user) {
       setUser(result.user)
       setError(null)
+
+      const userRepos = await fetchUserRepos(username)
+      setRepos(userRepos)
     }
 
     setLoading(false)
@@ -65,6 +72,7 @@ const Home = () => {
       {!loading && user && (
         <div key={user.login} className="animate-card-enter">
           <UserCardInfo user={user} />
+          <RepoList repos={repos} />
         </div>
       )}
 
