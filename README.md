@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# dev/finder
+
+A modern GitHub user search app built with Next.js 16, React 19, and Tailwind CSS 4. Search any GitHub user and explore their profile, repositories, organizations, and activity stats — all in a polished glassmorphism interface with dark/light theme support.
+
+## Features
+
+- **User Search** — Find any GitHub user by username with real-time feedback
+- **Profile Overview** — Avatar, bio, stats (repos, followers, following), location, company, social links
+- **Popular Repositories** — Top 6 repos sorted by stars with language indicators, topics, and fork/star counts
+- **Organizations** — Visual list of the user's public organizations
+- **Activity Overview** — Total stars, forks, own repos, public gists, language distribution chart, and last activity timestamp
+- **Search History** — Persistent recent searches stored in localStorage with quick re-search
+- **Shareable Links** — Copy a direct link to any profile; recipients see the profile instantly on open
+- **Dark/Light Theme** — Toggle between themes with smooth transitions and hydration-safe state
+- **Rate Limit Awareness** — Visual indicator of GitHub API usage with color-coded progress bar
+- **Error Handling** — Contextual error cards for not found, rate limit, server, and network errors
+- **Skeleton Loading** — Shimmer placeholders matching the layout while data loads
+- **Responsive Design** — Optimized for desktop and mobile viewports
+
+## Tech Stack
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 16.1.6 | Framework (App Router + Turbopack) |
+| React | 19.2.4 | UI library |
+| TypeScript | 5.9.3 | Type safety |
+| Tailwind CSS | 4.2.1 | Styling (CSS-first config) |
+| ESLint | 9.x | Code quality (flat config) |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```
+src/app/
+├── components/
+│   ├── icons/           # SVG icon components
+│   ├── ActivityOverview  # Stats cards + language chart
+│   ├── EmptyState        # Initial search prompt
+│   ├── ErrorCard         # Contextual error display
+│   ├── FormSearchUser    # Search input with gradient button
+│   ├── LanguageChart     # Stacked bar + legend
+│   ├── NavBar            # Brand title + theme toggle
+│   ├── OrgList           # User organizations
+│   ├── RateLimitIndicator # API usage progress bar
+│   ├── RepoList          # Popular repositories grid
+│   ├── SearchHistory     # Recent searches with localStorage
+│   ├── ShareButton       # Copy profile link to clipboard
+│   ├── UserCardInfo      # Full user profile card
+│   └── UserCardSkeleton  # Loading placeholder
+├── hooks/
+│   └── useSearchHistory  # localStorage sync via useSyncExternalStore
+├── interfaces/           # TypeScript types (User, Repo, Org)
+├── lib/
+│   ├── github            # API service + stats computation
+│   └── language-colors   # GitHub language color map
+├── globals.css           # Design tokens, animations, glass effects
+├── layout.tsx            # Root layout with font + theme
+└── page.tsx              # Main page with state management
+```
 
-## Learn More
+## API
 
-To learn more about Next.js, take a look at the following resources:
+Uses the public GitHub REST API (no authentication required):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `GET /users/{username}` — User profile
+- `GET /users/{username}/repos` — User repositories (paginated)
+- `GET /users/{username}/orgs` — User organizations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Rate limit: 60 requests/hour for unauthenticated requests.
 
-## Deploy on Vercel
+## Design
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The UI follows a **glassmorphism** design system with:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Semi-transparent surfaces with `backdrop-blur`
+- CSS custom properties for theming (no `dark:` prefixes)
+- Gradient accents (violet → cyan)
+- Smooth card entrance animations
+- Animated background orbs
+
+## License
+
+MIT
